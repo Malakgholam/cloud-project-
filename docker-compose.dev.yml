@@ -1,0 +1,137 @@
+version: '3.8'
+
+services:
+  # ========== MongoDB ==========
+  mongodb:
+    image: mongo:7
+    container_name: supportdesk-mongodb-dev
+    ports:
+      - "27017:27017"
+    volumes:
+      - mongo-data-dev:/data/db
+    networks:
+      - supportdesk-network
+    restart: unless-stopped
+
+  # ========== Ticket Service ==========
+  ticket-service:
+    build:
+      context: ./ticket-service
+      dockerfile: Dockerfile
+    container_name: supportdesk-ticket-dev
+    ports:
+      - "3001:3001"
+    environment:
+      - NODE_ENV=development
+      - PORT=3001
+      - MONGO_URI=mongodb://mongodb:27017/tickets
+      - NOTIFICATION_SERVICE_URL=http://notification-service:3003
+      - LOG_LEVEL=debug
+    volumes:
+      - ./ticket-service:/app
+      - /app/node_modules
+    command: npm run dev
+    depends_on:
+      - mongodb
+    networks:
+      - supportdesk-network
+    restart: unless-stopped
+
+  # ========== Support Service ==========
+  support-service:
+    build:
+      context: ./support-service
+      dockerfile: Dockerfile
+    container_name: supportdesk-support-dev
+    ports:
+      - "3002:3002"
+    environment:
+      - NODE_ENV=development
+      - PORT=3002
+      - MONGO_URI=mongodb://mongodb:27017/support
+      - TICKET_SERVICE_URL=http://ticket-service:3001
+      - NOTIFICATION_SERVICE_URL=http://notification-service:3003
+      - LOG_LEVEL=debug
+    volumes:
+      - ./support-service:/app
+      - /app/node_modules
+    command: npm run dev
+    depends_on:
+      - mongodb
+      - ticket-service
+    networks:
+      - supportdesk-network
+    restart: unless-stopped
+
+  # ========== Notification Service ==========
+  notification-service:
+    build:
+      context: ./notification-service
+      dockerfile: Dockerfile
+    container_name: supportdesk-notification-dev
+    ports:
+      - "3003:3003"
+    environment:
+      - NODE_ENV=development
+      - PORT=3003
+      - MONGO_URI=mongodb://mongodb:27017/notifications
+      - LOG_LEVEL=debug
+    volumes:
+      - ./notification-service:/app
+      - /app/node_modules
+    command: npm run dev
+    depends_on:
+      - mongodb
+    networks:
+      - supportdesk-network
+    restart: unless-stopped
+
+  # ========== Reporting Service ==========
+  reporting-service:
+    build:
+      context: ./reporting-service
+      dockerfile: Dockerfile
+    container_name: supportdesk-reporting-dev
+    ports:
+      - "3004:3004"
+    environment:
+      - NODE_ENV=development
+      - PORT=3004
+      - TICKET_SERVICE_URL=http://ticket-service:3001
+      - LOG_LEVEL=debug
+    volumes:
+      - ./reporting-service:/app
+      - /app/node_modules
+    command: npm run dev
+    depends_on:
+      - ticket-service
+    networks:
+      - supportdesk-network
+    restart: unless-stopped
+
+  # ========== Frontend ==========
+  frontend:
+    build:
+      context: ./frontend
+      dockerfile: Dockerfile
+      args:
+        - VITE_TICKET_SERVICE_URL=http://localhost:3001
+        - VITE_SUPPORT_SERVICE_URL=http://localhost:3002
+        - VITE_REPORT_SERVICE_URL=http://localhost:3004
+    container_name: supportdesk-frontend-dev
+    ports:
+      - "3000:80"
+    depends_on:
+      - ticket-service
+      - support-service
+      - reporting-service
+    networks:
+      - supportdesk-network
+    restart: unless-stopped
+
+volumes:
+  mongo-data-dev:
+
+networks:
+  supportdesk-network:
+    driver: bridge
