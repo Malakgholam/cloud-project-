@@ -1,18 +1,4 @@
-version: '3.8'
-
 services:
-  # ========== MongoDB ==========
-  mongodb:
-    image: mongo:7
-    container_name: supportdesk-mongodb-dev
-    ports:
-      - "27017:27017"
-    volumes:
-      - mongo-data-dev:/data/db
-    networks:
-      - supportdesk-network
-    restart: unless-stopped
-
   # ========== Ticket Service ==========
   ticket-service:
     build:
@@ -24,15 +10,13 @@ services:
     environment:
       - NODE_ENV=development
       - PORT=3001
-      - MONGO_URI=mongodb://mongodb:27017/tickets
+      - MONGO_URI=mongodb+srv://amira:amira123@cluster0.avavr8w.mongodb.net/ticketsDB
       - NOTIFICATION_SERVICE_URL=http://notification-service:3003
       - LOG_LEVEL=debug
     volumes:
       - ./ticket-service:/app
       - /app/node_modules
     command: npm run dev
-    depends_on:
-      - mongodb
     networks:
       - supportdesk-network
     restart: unless-stopped
@@ -48,7 +32,7 @@ services:
     environment:
       - NODE_ENV=development
       - PORT=3002
-      - MONGO_URI=mongodb://mongodb:27017/support
+      - MONGO_URI=mongodb+srv://amira:amira123@cluster0.avavr8w.mongodb.net/supportDB
       - TICKET_SERVICE_URL=http://ticket-service:3001
       - NOTIFICATION_SERVICE_URL=http://notification-service:3003
       - LOG_LEVEL=debug
@@ -57,7 +41,6 @@ services:
       - /app/node_modules
     command: npm run dev
     depends_on:
-      - mongodb
       - ticket-service
     networks:
       - supportdesk-network
@@ -74,14 +57,12 @@ services:
     environment:
       - NODE_ENV=development
       - PORT=3003
-      - MONGO_URI=mongodb://mongodb:27017/notifications
+      - MONGO_URI=mongodb+srv://amira:amira123@cluster0.avavr8w.mongodb.net/notificationsDB
       - LOG_LEVEL=debug
     volumes:
       - ./notification-service:/app
       - /app/node_modules
     command: npm run dev
-    depends_on:
-      - mongodb
     networks:
       - supportdesk-network
     restart: unless-stopped
@@ -128,9 +109,6 @@ services:
     networks:
       - supportdesk-network
     restart: unless-stopped
-
-volumes:
-  mongo-data-dev:
 
 networks:
   supportdesk-network:
