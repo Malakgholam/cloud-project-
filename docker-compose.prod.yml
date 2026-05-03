@@ -1,19 +1,4 @@
-version: '3.8'
-
 services:
-  # ========== MongoDB ==========
-  mongodb:
-    image: mongo:7
-    container_name: supportdesk-mongodb-prod
-    ports:
-      - "27017:27017"
-    volumes:
-      - mongo-data-prod:/data/db
-    networks:
-      - supportdesk-network-prod
-    restart: always
-
-  # ========== Ticket Service ==========
   ticket-service:
     build:
       context: ./ticket-service
@@ -24,16 +9,13 @@ services:
     environment:
       - NODE_ENV=production
       - PORT=3001
-      - MONGO_URI=mongodb://mongodb:27017/tickets
+      - MONGO_URI=mongodb+srv://amira:amira123@cluster0.avavr8w.mongodb.net/ticketsDB_prod?appName=Cluster0&retryWrites=true&w=majority
       - NOTIFICATION_SERVICE_URL=http://notification-service:3003
       - LOG_LEVEL=error
-    depends_on:
-      - mongodb
     networks:
       - supportdesk-network-prod
     restart: always
 
-  # ========== Support Service ==========
   support-service:
     build:
       context: ./support-service
@@ -44,18 +26,16 @@ services:
     environment:
       - NODE_ENV=production
       - PORT=3002
-      - MONGO_URI=mongodb://mongodb:27017/support
+      - MONGO_URI=mongodb+srv://amira:amira123@cluster0.avavr8w.mongodb.net/supportDB_prod?appName=Cluster0&retryWrites=true&w=majority
       - TICKET_SERVICE_URL=http://ticket-service:3001
       - NOTIFICATION_SERVICE_URL=http://notification-service:3003
       - LOG_LEVEL=error
     depends_on:
-      - mongodb
       - ticket-service
     networks:
       - supportdesk-network-prod
     restart: always
 
-  # ========== Notification Service ==========
   notification-service:
     build:
       context: ./notification-service
@@ -66,15 +46,12 @@ services:
     environment:
       - NODE_ENV=production
       - PORT=3003
-      - MONGO_URI=mongodb://mongodb:27017/notifications
+      - MONGO_URI=mongodb+srv://amira:amira123@cluster0.avavr8w.mongodb.net/notificationsDB_prod?appName=Cluster0&retryWrites=true&w=majority
       - LOG_LEVEL=error
-    depends_on:
-      - mongodb
     networks:
       - supportdesk-network-prod
     restart: always
 
-  # ========== Reporting Service ==========
   reporting-service:
     build:
       context: ./reporting-service
@@ -93,7 +70,6 @@ services:
       - supportdesk-network-prod
     restart: always
 
-  # ========== Frontend ==========
   frontend:
     build:
       context: ./frontend
@@ -112,9 +88,6 @@ services:
     networks:
       - supportdesk-network-prod
     restart: always
-
-volumes:
-  mongo-data-prod:
 
 networks:
   supportdesk-network-prod:

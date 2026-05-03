@@ -10,7 +10,7 @@ services:
     environment:
       - NODE_ENV=development
       - PORT=3001
-      - MONGO_URI=mongodb+srv://amira:amira123@cluster0.avavr8w.mongodb.net/ticketsDB
+      - MONGO_URI=mongodb+srv://amira:amira123@cluster0.avavr8w.mongodb.net/ticketsDB_dev?appName=Cluster0&retryWrites=true&w=majority
       - NOTIFICATION_SERVICE_URL=http://notification-service:3003
       - LOG_LEVEL=debug
     volumes:
@@ -32,7 +32,7 @@ services:
     environment:
       - NODE_ENV=development
       - PORT=3002
-      - MONGO_URI=mongodb+srv://amira:amira123@cluster0.avavr8w.mongodb.net/supportDB
+      - MONGO_URI=mongodb+srv://amira:amira123@cluster0.avavr8w.mongodb.net/supportDB_dev?appName=Cluster0&retryWrites=true&w=majority
       - TICKET_SERVICE_URL=http://ticket-service:3001
       - NOTIFICATION_SERVICE_URL=http://notification-service:3003
       - LOG_LEVEL=debug
@@ -57,7 +57,7 @@ services:
     environment:
       - NODE_ENV=development
       - PORT=3003
-      - MONGO_URI=mongodb+srv://amira:amira123@cluster0.avavr8w.mongodb.net/notificationsDB
+      - MONGO_URI=mongodb+srv://amira:amira123@cluster0.avavr8w.mongodb.net/notificationsDB_dev?appName=Cluster0&retryWrites=true&w=majority
       - LOG_LEVEL=debug
     volumes:
       - ./notification-service:/app

@@ -1,18 +1,4 @@
-version: '3.8'
-
 services:
-  # ========== MongoDB ==========
-  mongodb:
-    image: mongo:7
-    container_name: supportdesk-mongodb-test
-    ports:
-      - "27018:27017"
-    tmpfs:
-      - /data/db
-    networks:
-      - supportdesk-network-test
-
-  # ========== Ticket Service ==========
   ticket-service:
     build:
       context: ./ticket-service
@@ -23,15 +9,12 @@ services:
     environment:
       - NODE_ENV=testing
       - PORT=3001
-      - MONGO_URI=mongodb://mongodb:27017/tickets_test
+      - MONGO_URI=mongodb+srv://amira:amira123@cluster0.avavr8w.mongodb.net/ticketsDB_test?appName=Cluster0&retryWrites=true&w=majority
       - NOTIFICATION_SERVICE_URL=http://notification-service:3003
       - LOG_LEVEL=warn
-    depends_on:
-      - mongodb
     networks:
       - supportdesk-network-test
 
-  # ========== Support Service ==========
   support-service:
     build:
       context: ./support-service
@@ -42,17 +25,15 @@ services:
     environment:
       - NODE_ENV=testing
       - PORT=3002
-      - MONGO_URI=mongodb://mongodb:27017/support_test
+      - MONGO_URI=mongodb+srv://amira:amira123@cluster0.avavr8w.mongodb.net/supportDB_test?appName=Cluster0&retryWrites=true&w=majority
       - TICKET_SERVICE_URL=http://ticket-service:3001
       - NOTIFICATION_SERVICE_URL=http://notification-service:3003
       - LOG_LEVEL=warn
     depends_on:
-      - mongodb
       - ticket-service
     networks:
       - supportdesk-network-test
 
-  # ========== Notification Service ==========
   notification-service:
     build:
       context: ./notification-service
@@ -63,14 +44,11 @@ services:
     environment:
       - NODE_ENV=testing
       - PORT=3003
-      - MONGO_URI=mongodb://mongodb:27017/notifications_test
+      - MONGO_URI=mongodb+srv://amira:amira123@cluster0.avavr8w.mongodb.net/notificationsDB_test?appName=Cluster0&retryWrites=true&w=majority
       - LOG_LEVEL=warn
-    depends_on:
-      - mongodb
     networks:
       - supportdesk-network-test
 
-  # ========== Reporting Service ==========
   reporting-service:
     build:
       context: ./reporting-service
@@ -88,7 +66,6 @@ services:
     networks:
       - supportdesk-network-test
 
-  # ========== Frontend ==========
   frontend:
     build:
       context: ./frontend
