@@ -144,14 +144,13 @@ export default function App() {
       {/* Navbar */}
       <nav className="navbar">
         <div className="navbar-brand">
-          <div className="brand-icon">🎫</div>
           <span>SupportDesk</span>
         </div>
         <div className="navbar-tabs">
           {[
-            { id: 'tickets', label: '📋 All Tickets' },
-            { id: 'create', label: '➕ New Ticket' },
-            { id: 'reports', label: '📊 Reports' }
+            { id: 'tickets', label: 'All Tickets' },
+            { id: 'create', label: 'New Ticket' },
+            { id: 'reports', label: 'Reports' }
           ].map(tab => (
             <button
               key={tab.id}
@@ -167,7 +166,7 @@ export default function App() {
       <main className="main-content">
         {/* Mobile Tabs */}
         <div className="filter-bar" style={{ marginBottom: '1.5rem' }}>
-          {[{ id: 'tickets', label: '📋 Tickets' }, { id: 'create', label: '➕ New' }, { id: 'reports', label: '📊 Reports' }].map(tab => (
+          {[{ id: 'tickets', label: ' Tickets' }, { id: 'create', label: 'New' }, { id: 'reports', label: 'Reports' }].map(tab => (
             <button key={tab.id} className={`filter-btn ${activeTab === tab.id ? 'active' : ''}`} onClick={() => setActiveTab(tab.id)} style={{ display: 'none' }}>
               {tab.label}
             </button>
@@ -210,7 +209,7 @@ export default function App() {
                 </button>
               ))}
               <button className="btn btn-secondary btn-sm" onClick={fetchTickets} style={{ marginLeft: 'auto' }}>
-                🔄 Refresh
+                 Refresh
               </button>
             </div>
 
@@ -218,7 +217,7 @@ export default function App() {
               <div className="loading"><div className="spinner"></div> Loading tickets...</div>
             ) : filteredTickets.length === 0 ? (
               <div className="empty-state">
-                <div className="empty-icon">🎫</div>
+                <div className="empty-icon"></div>
                 <p className="empty-text">No tickets found</p>
                 <p className="empty-sub">
                   {filter !== 'all' ? `No ${filter} tickets` : 'Create your first ticket to get started'}
@@ -232,9 +231,9 @@ export default function App() {
                       <div>
                         <div className="ticket-title">{ticket.title}</div>
                         <div className="ticket-meta">
-                          <span className="ticket-customer">👤 {ticket.customer}</span>
-                          {ticket.agent && <span className="ticket-agent">🧑‍💼 {ticket.agent}</span>}
-                          <span className="ticket-date">📅 {formatDate(ticket.createdAt)}</span>
+                          <span className="ticket-customer">{ticket.customer}</span>
+                          {ticket.agent && <span className="ticket-agent">{ticket.agent}</span>}
+                          <span className="ticket-date"> {formatDate(ticket.createdAt)}</span>
                         </div>
                       </div>
                       <span className={`badge badge-${ticket.status}`}>
@@ -257,7 +256,7 @@ export default function App() {
               <p className="page-subtitle">Submit a new customer support request</p>
             </div>
             <div className="card">
-              <h2 className="card-title">🎫 Ticket Details</h2>
+              <h2 className="card-title"> Ticket Details</h2>
               {formStatus && (
                 <div className={`alert alert-${formStatus.type}`}>{formStatus.message}</div>
               )}
@@ -298,7 +297,7 @@ export default function App() {
                 </div>
                 <div style={{ marginTop: '1.5rem', display: 'flex', gap: '0.75rem' }}>
                   <button id="submit-ticket" type="submit" className="btn btn-primary" disabled={submitting}>
-                    {submitting ? '⏳ Submitting...' : '🚀 Submit Ticket'}
+                    {submitting ? ' Submitting...' : ' Submit Ticket'}
                   </button>
                   <button type="button" className="btn btn-secondary" onClick={() => setForm({ title: '', description: '', customer: '' })}>
                     Clear
@@ -321,7 +320,7 @@ export default function App() {
             ) : report ? (
               <>
                 <div className="card">
-                  <h2 className="card-title">📊 Summary Report</h2>
+                  <h2 className="card-title"> Summary Report</h2>
                   <p style={{ fontSize: '0.8rem', color: 'var(--text-muted)', marginBottom: '1.5rem' }}>
                     Generated: {new Date(report.reportGeneratedAt).toLocaleString()}
                   </p>
@@ -348,11 +347,11 @@ export default function App() {
                     </div>
                   </div>
                 </div>
-                <button className="btn btn-secondary" onClick={fetchReport}>🔄 Refresh Report</button>
+                <button className="btn btn-secondary" onClick={fetchReport}>Refresh Report</button>
               </>
             ) : (
               <div className="empty-state">
-                <div className="empty-icon">📊</div>
+                <div className="empty-icon"></div>
                 <p className="empty-text">No report data available</p>
                 <p className="empty-sub">Create tickets first to generate reports</p>
                 <button className="btn btn-primary" style={{ marginTop: '1rem' }} onClick={fetchReport}>Retry</button>
@@ -399,10 +398,10 @@ export default function App() {
             {/* Replies */}
             {selectedTicket.replies && selectedTicket.replies.length > 0 && (
               <div className="replies-section">
-                <div className="replies-title">💬 Replies ({selectedTicket.replies.length})</div>
+                <div className="replies-title"> Replies ({selectedTicket.replies.length})</div>
                 {selectedTicket.replies.map((reply, i) => (
                   <div key={i} className="reply-item">
-                    <div className="reply-agent">🧑‍💼 {reply.agent}</div>
+                    <div className="reply-agent">{reply.agent}</div>
                     <div className="reply-message">{reply.message}</div>
                   </div>
                 ))}
@@ -412,7 +411,7 @@ export default function App() {
             {/* Actions */}
             {selectedTicket.status !== 'resolved' && (
               <div className="replies-section">
-                <div className="replies-title">⚡ Actions</div>
+                <div className="replies-title">Actions</div>
                 {!selectedTicket.agent && (
                   <div style={{ display: 'flex', gap: '0.5rem', marginBottom: '0.75rem' }}>
                     <input
@@ -441,7 +440,7 @@ export default function App() {
 
             <div className="modal-actions">
               {selectedTicket.status !== 'resolved' && (
-                <button className="btn btn-success" onClick={handleResolve}>✓ Mark as Resolved</button>
+                <button className="btn btn-success" onClick={handleResolve}>Mark as Resolved</button>
               )}
               <button className="btn btn-secondary" onClick={() => setSelectedTicket(null)}>Close</button>
             </div>
