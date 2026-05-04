@@ -1,0 +1,14 @@
+apiVersion: v1
+kind: Namespace
+metadata:
+  name: supportdesk-prod
+---
+apiVersion: v1
+kind: Namespace
+metadata:
+  name: supportdesk-dev
+---
+apiVersion: v1
+kind: Namespace
+metadata:
+  name: supportdesk-test

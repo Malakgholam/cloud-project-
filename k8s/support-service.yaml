@@ -2,6 +2,7 @@ apiVersion: apps/v1
 kind: Deployment
 metadata:
   name: support-service
+  namespace: supportdesk-prod
   labels:
     app: support-service
 spec:
@@ -17,6 +18,7 @@ spec:
       containers:
         - name: support-service
           image: supportdesk/support-service:latest
+          imagePullPolicy: Always
           ports:
             - containerPort: 3002
           env:
@@ -25,7 +27,10 @@ spec:
             - name: PORT
               value: "3002"
             - name: MONGO_URI
-              value: "mongodb://mongodb:27017/support"
+              valueFrom:
+                secretKeyRef:
+                  name: mongo-secret
+                  key: support-uri
             - name: TICKET_SERVICE_URL
               value: "http://ticket-service:3001"
             - name: NOTIFICATION_SERVICE_URL
@@ -44,6 +49,7 @@ apiVersion: v1
 kind: Service
 metadata:
   name: support-service
+  namespace: supportdesk-prod
   labels:
     app: support-service
 spec:
