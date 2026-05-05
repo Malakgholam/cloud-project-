@@ -1,30 +1,12 @@
-# Stage 1 - Build React App
-FROM node:20-alpine AS builder
-
+FROM node:18 AS builder
 WORKDIR /app
-
 COPY package*.json ./
 RUN npm install
-
 COPY . .
-
-ARG VITE_TICKET_SERVICE_URL=http://localhost:3001
-ARG VITE_SUPPORT_SERVICE_URL=http://localhost:3002
-ARG VITE_REPORT_SERVICE_URL=http://localhost:3004
-
-ENV VITE_TICKET_SERVICE_URL=$VITE_TICKET_SERVICE_URL
-ENV VITE_SUPPORT_SERVICE_URL=$VITE_SUPPORT_SERVICE_URL
-ENV VITE_REPORT_SERVICE_URL=$VITE_REPORT_SERVICE_URL
-
+# Build with relative URLs (no localhost)
 RUN npm run build
 
-# Stage 2 - Serve with Nginx
-FROM nginx:1.25-alpine
-
+FROM nginx:alpine
 COPY --from=builder /app/dist /usr/share/nginx/html
-
-COPY nginx.conf /etc/nginx/conf.d/default.conf
-
+COPY nginx.conf /etc/nginx/conf.d/default.conf   
 EXPOSE 80
-
-CMD ["nginx", "-g", "daemon off;"]

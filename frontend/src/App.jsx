@@ -1,9 +1,9 @@
 import { useState, useEffect, useCallback } from 'react'
 import axios from 'axios'
 
-const TICKET_SERVICE = import.meta.env.VITE_TICKET_SERVICE_URL || 'http://localhost:3001'
-const SUPPORT_SERVICE = import.meta.env.VITE_SUPPORT_SERVICE_URL || 'http://localhost:3002'
-const REPORT_SERVICE = import.meta.env.VITE_REPORT_SERVICE_URL || 'http://localhost:3004'
+const TICKET_SERVICE = '/api/tickets-svc'
+const SUPPORT_SERVICE = '/api/support-svc'
+const REPORT_SERVICE  = '/api/reports-svc'
 
 export default function App() {
   const [activeTab, setActiveTab] = useState('tickets')

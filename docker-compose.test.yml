@@ -70,10 +70,6 @@ services:
     build:
       context: ./frontend
       dockerfile: Dockerfile
-      args:
-        - VITE_TICKET_SERVICE_URL=http://localhost:4001
-        - VITE_SUPPORT_SERVICE_URL=http://localhost:4002
-        - VITE_REPORT_SERVICE_URL=http://localhost:4004
     container_name: supportdesk-frontend-test
     ports:
       - "4000:80"
