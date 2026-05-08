@@ -1,14 +1,14 @@
 {
-  "name": "support-service",
+  "name": "auth-service",
   "version": "1.0.0",
-  "description": "Support Service for Customer Support System",
+  "description": "Auth Service for SupportDesk",
   "main": "index.js",
   "scripts": {
     "start": "node index.js",
     "dev": "nodemon index.js"
   },
   "dependencies": {
-    "axios": "^1.6.8",
+    "bcryptjs": "^2.4.3",
     "cors": "^2.8.5",
     "dotenv": "^17.4.2",
     "express": "^4.19.2",

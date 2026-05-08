@@ -1,18 +1,40 @@
-require('dotenv').config(); 
+require('dotenv').config();
 const express = require('express');
 const axios = require('axios');
 const cors = require('cors');
+const jwt = require('jsonwebtoken');
 
 const app = express();
 app.use(express.json());
 app.use(cors());
 
 const TICKET_SERVICE_URL = process.env.TICKET_SERVICE_URL || 'http://localhost:3001';
+const JWT_SECRET = process.env.JWT_SECRET || 'supportdesk-jwt-secret';
+const SERVICE_TOKEN = process.env.SERVICE_TOKEN || 'internal-service-token';
 
-// GET /reports/summary - Full report
-app.get('/reports/summary', async (req, res) => {
+const svcHeaders = { headers: { 'x-service-token': SERVICE_TOKEN } };
+
+const authenticate = (req, res, next) => {
+  if (req.headers['x-service-token'] === SERVICE_TOKEN) {
+    req.user = { role: 'service' };
+    return next();
+  }
+  const token = req.headers.authorization?.split(' ')[1];
+  if (!token) return res.status(401).json({ error: 'Unauthorized' });
   try {
-    const response = await axios.get(`${TICKET_SERVICE_URL}/tickets`);
+    req.user = jwt.verify(token, JWT_SECRET);
+    next();
+  } catch {
+    res.status(401).json({ error: 'Invalid token' });
+  }
+};
+
+const authorize = (...roles) => (req, res, next) =>
+  roles.includes(req.user.role) ? next() : res.status(403).json({ error: 'Forbidden' });
+
+app.get('/reports/summary', authenticate, authorize('admin'), async (req, res) => {
+  try {
+    const response = await axios.get(`${TICKET_SERVICE_URL}/tickets`, svcHeaders);
     const tickets = response.data;
 
     const total = tickets.length;
@@ -20,26 +42,21 @@ app.get('/reports/summary', async (req, res) => {
     const inProgress = tickets.filter(t => t.status === 'in_progress').length;
     const resolved = tickets.filter(t => t.status === 'resolved').length;
 
-    // Average response time: diff between createdAt and updatedAt for resolved tickets
     const resolvedTickets = tickets.filter(t => t.status === 'resolved');
     let avgResponseTimeMs = 0;
     if (resolvedTickets.length > 0) {
       const totalMs = resolvedTickets.reduce((sum, t) => {
-        const created = new Date(t.createdAt).getTime();
-        const updated = new Date(t.updatedAt).getTime();
-        return sum + (updated - created);
+        return sum + (new Date(t.updatedAt).getTime() - new Date(t.createdAt).getTime());
       }, 0);
       avgResponseTimeMs = totalMs / resolvedTickets.length;
     }
-
-    const avgResponseTimeHours = (avgResponseTimeMs / (1000 * 60 * 60)).toFixed(2);
 
     res.json({
       totalTickets: total,
       openTickets: open,
       inProgressTickets: inProgress,
       resolvedTickets: resolved,
-      averageResponseTimeHours: parseFloat(avgResponseTimeHours),
+      averageResponseTimeHours: parseFloat((avgResponseTimeMs / 3600000).toFixed(2)),
       reportGeneratedAt: new Date().toISOString()
     });
   } catch (err) {
@@ -47,35 +64,27 @@ app.get('/reports/summary', async (req, res) => {
   }
 });
 
-// GET /reports/by-status - Open vs Closed breakdown
-app.get('/reports/by-status', async (req, res) => {
+app.get('/reports/by-status', authenticate, authorize('admin'), async (req, res) => {
   try {
-    const response = await axios.get(`${TICKET_SERVICE_URL}/tickets`);
-    const tickets = response.data;
-
-    const statusMap = tickets.reduce((acc, ticket) => {
-      acc[ticket.status] = (acc[ticket.status] || 0) + 1;
+    const response = await axios.get(`${TICKET_SERVICE_URL}/tickets`, svcHeaders);
+    const statusMap = response.data.reduce((acc, t) => {
+      acc[t.status] = (acc[t.status] || 0) + 1;
       return acc;
     }, {});
-
     res.json({ statusBreakdown: statusMap, reportGeneratedAt: new Date().toISOString() });
   } catch (err) {
     res.status(500).json({ error: 'Failed to generate report', details: err.message });
   }
 });
 
-// GET /reports/by-agent - Tickets per agent
-app.get('/reports/by-agent', async (req, res) => {
+app.get('/reports/by-agent', authenticate, authorize('admin'), async (req, res) => {
   try {
-    const response = await axios.get(`${TICKET_SERVICE_URL}/tickets`);
-    const tickets = response.data;
-
-    const agentMap = tickets.reduce((acc, ticket) => {
-      const agentKey = ticket.agent || 'Unassigned';
-      acc[agentKey] = (acc[agentKey] || 0) + 1;
+    const response = await axios.get(`${TICKET_SERVICE_URL}/tickets`, svcHeaders);
+    const agentMap = response.data.reduce((acc, t) => {
+      const key = t.agent || 'Unassigned';
+      acc[key] = (acc[key] || 0) + 1;
       return acc;
     }, {});
-
     res.json({ agentBreakdown: agentMap, reportGeneratedAt: new Date().toISOString() });
   } catch (err) {
     res.status(500).json({ error: 'Failed to generate report', details: err.message });

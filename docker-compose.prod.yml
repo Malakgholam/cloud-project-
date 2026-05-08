@@ -1,4 +1,22 @@
 services:
+  auth-service:
+    build:
+      context: ./auth-service
+      dockerfile: Dockerfile
+    container_name: supportdesk-auth-prod
+    ports:
+      - "3005:3005"
+    environment:
+      - NODE_ENV=production
+      - PORT=3005
+      - MONGO_URI=mongodb+srv://amira:amira123@cluster0.avavr8w.mongodb.net/authDB_prod?appName=Cluster0&retryWrites=true&w=majority
+      - JWT_SECRET=supportdesk-jwt-secret
+      - SERVICE_TOKEN=internal-service-token
+      - LOG_LEVEL=error
+    networks:
+      - supportdesk-network-prod
+    restart: always
+
   ticket-service:
     build:
       context: ./ticket-service
@@ -11,6 +29,8 @@ services:
       - PORT=3001
       - MONGO_URI=mongodb+srv://amira:amira123@cluster0.avavr8w.mongodb.net/ticketsDB_prod?appName=Cluster0&retryWrites=true&w=majority
       - NOTIFICATION_SERVICE_URL=http://notification-service:3003
+      - JWT_SECRET=supportdesk-jwt-secret
+      - SERVICE_TOKEN=internal-service-token
       - LOG_LEVEL=error
     networks:
       - supportdesk-network-prod
@@ -29,6 +49,8 @@ services:
       - MONGO_URI=mongodb+srv://amira:amira123@cluster0.avavr8w.mongodb.net/supportDB_prod?appName=Cluster0&retryWrites=true&w=majority
       - TICKET_SERVICE_URL=http://ticket-service:3001
       - NOTIFICATION_SERVICE_URL=http://notification-service:3003
+      - JWT_SECRET=supportdesk-jwt-secret
+      - SERVICE_TOKEN=internal-service-token
       - LOG_LEVEL=error
     depends_on:
       - ticket-service
@@ -47,6 +69,8 @@ services:
       - NODE_ENV=production
       - PORT=3003
       - MONGO_URI=mongodb+srv://amira:amira123@cluster0.avavr8w.mongodb.net/notificationsDB_prod?appName=Cluster0&retryWrites=true&w=majority
+      - JWT_SECRET=supportdesk-jwt-secret
+      - SERVICE_TOKEN=internal-service-token
       - LOG_LEVEL=error
     networks:
       - supportdesk-network-prod
@@ -63,6 +87,8 @@ services:
       - NODE_ENV=production
       - PORT=3004
       - TICKET_SERVICE_URL=http://ticket-service:3001
+      - JWT_SECRET=supportdesk-jwt-secret
+      - SERVICE_TOKEN=internal-service-token
       - LOG_LEVEL=error
     depends_on:
       - ticket-service
@@ -78,6 +104,7 @@ services:
     ports:
       - "80:80"
     depends_on:
+      - auth-service
       - ticket-service
       - support-service
       - reporting-service

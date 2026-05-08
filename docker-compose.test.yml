@@ -1,4 +1,21 @@
 services:
+  auth-service:
+    build:
+      context: ./auth-service
+      dockerfile: Dockerfile
+    container_name: supportdesk-auth-test
+    ports:
+      - "4005:3005"
+    environment:
+      - NODE_ENV=testing
+      - PORT=3005
+      - MONGO_URI=mongodb+srv://amira:amira123@cluster0.avavr8w.mongodb.net/authDB_test?appName=Cluster0&retryWrites=true&w=majority
+      - JWT_SECRET=supportdesk-jwt-secret
+      - SERVICE_TOKEN=internal-service-token
+      - LOG_LEVEL=warn
+    networks:
+      - supportdesk-network-test
+
   ticket-service:
     build:
       context: ./ticket-service
@@ -11,6 +28,8 @@ services:
       - PORT=3001
       - MONGO_URI=mongodb+srv://amira:amira123@cluster0.avavr8w.mongodb.net/ticketsDB_test?appName=Cluster0&retryWrites=true&w=majority
       - NOTIFICATION_SERVICE_URL=http://notification-service:3003
+      - JWT_SECRET=supportdesk-jwt-secret
+      - SERVICE_TOKEN=internal-service-token
       - LOG_LEVEL=warn
     networks:
       - supportdesk-network-test
@@ -28,6 +47,8 @@ services:
       - MONGO_URI=mongodb+srv://amira:amira123@cluster0.avavr8w.mongodb.net/supportDB_test?appName=Cluster0&retryWrites=true&w=majority
       - TICKET_SERVICE_URL=http://ticket-service:3001
       - NOTIFICATION_SERVICE_URL=http://notification-service:3003
+      - JWT_SECRET=supportdesk-jwt-secret
+      - SERVICE_TOKEN=internal-service-token
       - LOG_LEVEL=warn
     depends_on:
       - ticket-service
@@ -45,6 +66,8 @@ services:
       - NODE_ENV=testing
       - PORT=3003
       - MONGO_URI=mongodb+srv://amira:amira123@cluster0.avavr8w.mongodb.net/notificationsDB_test?appName=Cluster0&retryWrites=true&w=majority
+      - JWT_SECRET=supportdesk-jwt-secret
+      - SERVICE_TOKEN=internal-service-token
       - LOG_LEVEL=warn
     networks:
       - supportdesk-network-test
@@ -60,6 +83,8 @@ services:
       - NODE_ENV=testing
       - PORT=3004
       - TICKET_SERVICE_URL=http://ticket-service:3001
+      - JWT_SECRET=supportdesk-jwt-secret
+      - SERVICE_TOKEN=internal-service-token
       - LOG_LEVEL=warn
     depends_on:
       - ticket-service
@@ -74,6 +99,7 @@ services:
     ports:
       - "4000:80"
     depends_on:
+      - auth-service
       - ticket-service
       - support-service
       - reporting-service
