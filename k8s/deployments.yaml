@@ -15,7 +15,7 @@ spec:
     spec:
       containers:
         - name: auth-service
-          image: malakmohannad32/auth-service:latest
+          image: amiraashraf/auth-service:latest
           ports:
             - containerPort: 3005
           envFrom:
@@ -45,7 +45,7 @@ spec:
     spec:
       containers:
         - name: ticket-service
-          image: malakmohannad32/ticket-service:latest
+          image: amiraashraf/ticket-service:latest
           ports:
             - containerPort: 3001
           envFrom:
@@ -75,7 +75,7 @@ spec:
     spec:
       containers:
         - name: support-service
-          image: malakmohannad32/support-service:latest
+          image: amiraashraf/support-service:latest
           ports:
             - containerPort: 3002
           envFrom:
@@ -105,7 +105,7 @@ spec:
     spec:
       containers:
         - name: notification-service
-          image: malakmohannad32/notification-service:latest
+          image: amiraashraf/notification-service:latest
           ports:
             - containerPort: 3003
           envFrom:
@@ -135,7 +135,7 @@ spec:
     spec:
       containers:
         - name: reporting-service
-          image: malakmohannad32/reporting-service:latest
+          image: amiraashraf/reporting-service:latest
           ports:
             - containerPort: 3004
           envFrom:
@@ -159,6 +159,6 @@ spec:
     spec:
       containers:
         - name: frontend
-          image: malakmohannad32/frontend:latest
+          image: amiraashraf/frontend:latest
           ports:
             - containerPort: 80
